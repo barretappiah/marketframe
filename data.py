@@ -1,13 +1,17 @@
 import yfinance as yf
-from datetime import date
+from datetime import date, datetime, timedelta
 
-def get_data(ticker, start, end):
-    df = yf.download(ticker)
+def get_data(ticker, begin, stop):
+    df = yf.download(ticker, start=begin, end=stop, auto_adjust=True)
     df.dropna(inplace=True)
+    df.columns = df.columns.droplevel(1)
     return df
 
-ticker = "TSLA"
-start = date(2024, 1, 1)
-end = date(2024, 12, 31)
+def df_maker(ticker, duration):
 
-print(get_data(ticker, start, end))
+    begin = date.today() - timedelta(duration)
+    stop = date.today()
+
+    df = get_data(ticker, begin, stop)
+    return df
+
