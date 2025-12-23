@@ -1,11 +1,13 @@
 import streamlit as st
 from data import df_maker
+from data import ticker_info
 import plotly.express as px
 import plotly.graph_objects as go
 
+# ---------------------------------------------------------------------------- #
+
 # BASIC SETTINGS
-st.title("Tesla, Inc. (TSLA)")
-ticker = 'TSLA'
+default_ticker = 'TSLA'
 duration = 100
 interval = '1h'
 
@@ -48,13 +50,22 @@ def interactive_plot(df):
         legend_title = "Indicators"
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
+
+# ---------------------------------------------------------------------------- #
 
 def main():
+    # Get ticker from session_state, else use default
+    current_ticker = st.session_state.get('ticker', default_ticker)
+    
     # Dataframe
-    df = get_info(ticker, duration, interval)
+    df = get_info(current_ticker, duration, interval)
+
+    # Title
+    st.title(ticker_info(current_ticker))
 
     # Graph
     interactive_plot(df)
 
 main()
+

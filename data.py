@@ -1,5 +1,8 @@
+import pandas as pd
 import yfinance as yf
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
+
+# ---------------------------------------------------------------------------- #
 
 def get_data(ticker, begin, stop, gap):
     # Close Prices
@@ -11,7 +14,8 @@ def get_data(ticker, begin, stop, gap):
 
     # Remove Useless Space
     df.dropna(inplace=True)
-    df.columns = df.columns.droplevel(1)
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.droplevel(1)
     return df
 
 def df_maker(ticker, duration, interval):
@@ -21,3 +25,14 @@ def df_maker(ticker, duration, interval):
 
     df = get_data(ticker, begin, stop, interval)
     return df
+
+
+# ---------------------------------------------------------------------------- #
+
+def ticker_info(ticker):
+    stock = yf.Ticker(ticker)
+
+    company_name = stock.info.get("longName")
+    symbol = stock.info.get("symbol")
+
+    return f"{company_name} ({symbol})"
