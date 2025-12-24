@@ -16,7 +16,7 @@ interval = '1d'
 st.set_page_config(layout="wide")
 styles.apply_styles()
 
-dash_col, news_col = st.columns([4, 1])
+dash_col, news_col = st.columns([3, 1])
 
 # BUILD DATA-FRAME
 def get_info(ticker, duration, interval):
@@ -89,12 +89,19 @@ def main():
 
         news_col.markdown(
             f"""
+            <span id="news-top-margin"></span>
+            """, unsafe_allow_html=True
+        )
+
+        news_col.markdown(
+            f"""
             <div class="news_article">
                 <a href="{link}" class="news_article_link">
-                    <strong>{title}</strong>
+                    <strong class="news_title">{title}</strong>
                 </a><br>
                 <span class="news_article_publisher">{publisher}</span>
             </div>
+            <hr class="news_break">
             """, unsafe_allow_html=True
         )
 
