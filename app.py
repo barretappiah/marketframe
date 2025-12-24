@@ -16,6 +16,8 @@ interval = '1d'
 st.set_page_config(layout="wide")
 styles.apply_styles()
 
+dash_col, news_col = st.columns([4, 1])
+
 # BUILD DATA-FRAME
 def get_info(ticker, duration, interval):
     df = data.df_maker(ticker, duration, interval)
@@ -57,7 +59,7 @@ def interactive_plot(df):
     fig.update_layout(margin=dict(l=10, r=10, t=25, b=10))
 
 
-    st.plotly_chart(fig, width='stretch')
+    dash_col.plotly_chart(fig, width='stretch')
 
 # ---------------------------------------------------------------------------- #
 
@@ -72,9 +74,29 @@ def main():
     stock_title, exchange = data.ticker_info(current_ticker)
     raw_change, percent_change = data.get_daily_change(df)
 
-    st.caption("NasdaqGS")
-    st.markdown("# NVIDIA Corporation (NVDA)")
-    st.markdown(styles.percent_badge(percent_change), unsafe_allow_html=True)
+    dash_col.markdown('<div id="exchange-caption">NasdaqGS</div>', unsafe_allow_html=True)
+    dash_col.markdown(f'<h1 id="stock-title">{stock_title}</h1>', unsafe_allow_html=True)
+    dash_col.markdown(styles.percent_badge(percent_change), unsafe_allow_html=True)
+
+    # News
+    news = data.get_news(current_ticker)
+
+    for article in news:
+        title = article["content"]["title"]
+        publisher = article.get("publisher")
+
+        link = data.extract_news_link(article)
+
+        news_col.markdown(
+            f"""
+            <div class="news_article">
+                <a href="{link}" class="news_article_link">
+                    <strong>{title}</strong>
+                </a><br>
+                <span class="news_article_publisher">{publisher}</span>
+            </div>
+            """, unsafe_allow_html=True
+        )
 
     # Graph
     interactive_plot(df)

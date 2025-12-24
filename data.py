@@ -70,3 +70,28 @@ def get_daily_change(df):
     percent_change = (raw_change / last_close) * 100
 
     return raw_change, percent_change
+
+
+
+# ---------------------------------------------------------------------------- #
+# Get News
+
+def get_news(ticker, limit=5):
+    
+    stock = yf.Ticker(ticker)
+    news = stock.news
+    return news[:limit]
+
+def extract_news_link(article: dict) -> str | None:
+    if article.get("link"):
+        return article["link"]
+
+    content = article.get("content", {})
+
+    if isinstance(content.get("clickThroughUrl"), dict):
+        return content["clickThroughUrl"].get("url")
+
+    if isinstance(content.get("canonicalUrl"), dict):
+        return content["canonicalUrl"].get("url")
+
+    return None
