@@ -7,9 +7,9 @@ import plotly.graph_objects as go
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'TSLA'
-duration = 100
-interval = '1h'
+default_ticker = 'NVDA'
+duration = 365
+interval = '1d'
 
 
 # BUILD DATA-FRAME
