@@ -1,8 +1,9 @@
 import streamlit as st
-from data import df_maker
-from data import ticker_info
 import plotly.express as px
 import plotly.graph_objects as go
+
+import data
+import styles
 
 # ---------------------------------------------------------------------------- #
 
@@ -11,10 +12,13 @@ default_ticker = 'NVDA'
 duration = 365
 interval = '1d'
 
+# STREAMLIT SETTINGS
+st.set_page_config(layout="wide")
+styles.apply_styles()
 
 # BUILD DATA-FRAME
 def get_info(ticker, duration, interval):
-    df = df_maker(ticker, duration, interval)
+    df = data.df_maker(ticker, duration, interval)
     return df
 
 
@@ -50,6 +54,9 @@ def interactive_plot(df):
         legend_title = "Indicators"
     )
 
+    fig.update_layout(margin=dict(l=10, r=10, t=25, b=10))
+
+
     st.plotly_chart(fig, width='stretch')
 
 # ---------------------------------------------------------------------------- #
@@ -62,7 +69,12 @@ def main():
     df = get_info(current_ticker, duration, interval)
 
     # Title
-    st.title(ticker_info(current_ticker))
+    stock_title, exchange = data.ticker_info(current_ticker)
+    raw_change, percent_change = data.get_daily_change(df)
+
+    st.caption("NasdaqGS")
+    st.markdown("# NVIDIA Corporation (NVDA)")
+    st.markdown(styles.percent_badge(percent_change), unsafe_allow_html=True)
 
     # Graph
     interactive_plot(df)

@@ -24,6 +24,7 @@ def get_data(ticker, begin, stop, gap):
             df.columns = df.columns.droplevel(1)
         return df
     
+    # otherwise use backup
     except Exception as e:
         print(f"⚠️ yfinance failed, loading CSV instead\n{e}")
         df = pd.read_csv(
@@ -52,4 +53,20 @@ def ticker_info(ticker):
     company_name = stock.info.get("longName")
     symbol = stock.info.get("symbol")
 
-    return f"{company_name} ({symbol})"
+    exchange = stock.info.get("fullExchangeName")
+
+    return f"{company_name} ({symbol})", exchange
+
+
+
+# ---------------------------------------------------------------------------- #
+# Get Daily Change
+
+def get_daily_change(df):
+    last_close = df["Close"].iloc[-1]
+    prev_clsoe = df["Close"].iloc[-2]
+
+    raw_change = last_close - prev_clsoe
+    percent_change = (raw_change / last_close) * 100
+
+    return raw_change, percent_change
