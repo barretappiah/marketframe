@@ -75,7 +75,7 @@ def main():
     raw_change, percent_change = data.get_daily_change(df)
 
     dash_col.markdown('<div id="exchange-caption">NasdaqGS</div>', unsafe_allow_html=True)
-    dash_col.markdown(f'<h1 id="stock-title">{stock_title}</h1>', unsafe_allow_html=True)
+    dash_col.markdown(f'<h1 class="stock-title">{stock_title}</h1>', unsafe_allow_html=True)
     dash_col.markdown(styles.percent_badge(percent_change), unsafe_allow_html=True)
 
     # News

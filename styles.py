@@ -12,8 +12,7 @@ def apply_styles():
             padding-right: 17rem;
         }
 
-        #stock-title {
-            color: orange !important;
+        .stock-title {
             margin-top: -5px !important;
             padding: 0 !important;
         }
