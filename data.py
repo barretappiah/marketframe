@@ -1,6 +1,6 @@
 import pandas as pd
 import yfinance as yf
-from datetime import date, timedelta
+from datetime import date, timedelta, timezone, datetime
 
 
 # ---------------------------------------------------------------------------- #
@@ -83,15 +83,38 @@ def get_news(ticker, limit=5):
     return news[:limit]
 
 def extract_news_link(article: dict) -> str | None:
-    if article.get("link"):
-        return article["link"]
-
     content = article.get("content", {})
-
-    if isinstance(content.get("clickThroughUrl"), dict):
-        return content["clickThroughUrl"].get("url")
 
     if isinstance(content.get("canonicalUrl"), dict):
         return content["canonicalUrl"].get("url")
 
+    if article.get("link"):
+        return article["link"]
+
+    if isinstance(content.get("clickThroughUrl"), dict):
+        return content["clickThroughUrl"].get("url")
+
     return None
+
+def upload_date(article):
+    uploaded = article["content"]["pubDate"]
+    dt = datetime.fromisoformat(uploaded.replace("Z", "+00:00"))
+
+    now = datetime.now(timezone.utc)
+    delta = now - dt
+
+    delta_seconds = delta.total_seconds()
+    seconds = int(delta_seconds)
+
+    minutes = seconds // 60
+    hours = minutes // 60
+    days = hours // 24
+
+    if days > 0:
+        return f"{days}d"
+    elif hours > 0:
+        return f"{hours}h"
+    elif minutes > 0:
+        return f"{minutes}m"
+    else:
+        return f"{seconds}s"

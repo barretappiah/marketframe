@@ -8,7 +8,7 @@ import styles
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'BTC-USD'
+default_ticker = 'ETH-USD'
 duration = 365
 interval = '1d'
 
@@ -74,36 +74,47 @@ def main():
     stock_title, exchange = data.ticker_info(current_ticker)
     raw_change, percent_change = data.get_daily_change(df)
 
-    dash_col.markdown('<div id="exchange-caption">NasdaqGS</div>', unsafe_allow_html=True)
+    dash_col.markdown(f'<div id="exchange-caption">{exchange}</div>', unsafe_allow_html=True)
     dash_col.markdown(f'<h1 class="stock-title">{stock_title}</h1>', unsafe_allow_html=True)
     dash_col.markdown(styles.percent_badge(percent_change), unsafe_allow_html=True)
 
     # News
     news = data.get_news(current_ticker)
 
-    for article in news:
-        title = article["content"]["title"]
-        publisher = article.get("publisher")
+    # Display News
+    def news_builder():
+        count = 1
+        for article in news:
+            
+            title = article["content"]["title"]
+            publisher = article["content"]["provider"]["displayName"]
+            
+            link = data.extract_news_link(article)
+            upload_time = data.upload_date(article)
 
-        link = data.extract_news_link(article)
+            news_col.markdown(
+                f"""
+                <span id="news-top-margin"></span>
+                """, unsafe_allow_html=True
+            )
 
-        news_col.markdown(
-            f"""
-            <span id="news-top-margin"></span>
-            """, unsafe_allow_html=True
-        )
+            news_col.markdown(
+                f"""
+                <div class="news_article">
+                    <a href="{link}" class="news_article_link">
+                        <strong class="news_title">{title}</strong>
+                    </a><br>
+                    <span class="news_article_publisher">{publisher} - {upload_time}</span>
+                </div>
+                """, unsafe_allow_html=True
+            )
 
-        news_col.markdown(
-            f"""
-            <div class="news_article">
-                <a href="{link}" class="news_article_link">
-                    <strong class="news_title">{title}</strong>
-                </a><br>
-                <span class="news_article_publisher">{publisher}</span>
-            </div>
-            <hr class="news_break">
-            """, unsafe_allow_html=True
-        )
+            if count < len(news):
+                news_col.markdown(f"""<hr class="news_break">""", unsafe_allow_html=True)
+            
+            count += 1
+
+    news_builder()
 
     # Graph
     interactive_plot(df)
