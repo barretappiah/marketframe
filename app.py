@@ -8,7 +8,7 @@ import styles
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'NVDA'
+default_ticker = 'BTC-USD'
 duration = 365
 interval = '1d'
 
