@@ -4,6 +4,8 @@ import plotly.graph_objects as go
 
 import data
 import styles
+import backtest
+import backtest_hold
 
 # ---------------------------------------------------------------------------- #
 
@@ -63,6 +65,14 @@ def interactive_plot(df):
 
 # ---------------------------------------------------------------------------- #
 
+def trade(df):
+    backtest.run_backtest(df)
+
+def hold(df):
+    backtest_hold.run_backtest(df)
+
+# ---------------------------------------------------------------------------- #
+
 def main():
     # Get ticker from session_state, else use default
     current_ticker = st.session_state.get('ticker', default_ticker)
@@ -105,8 +115,12 @@ def main():
             """, unsafe_allow_html=True
         )
 
+
     # Graph
     interactive_plot(df)
+
+    trade(df)
+    hold(df)
 
 main()
 
