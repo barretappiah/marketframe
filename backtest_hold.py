@@ -14,7 +14,7 @@ def execute_change(change, holdings):
 
 def run_backtest(df):
 
-    holdings = 10000
+    holdings = df['Close'].iloc[0]
 
     change = rate_of_change(df)
     holdings = execute_change(change, holdings)

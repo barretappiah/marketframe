@@ -10,8 +10,8 @@ import backtest_hold
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'ETH-USD'
-duration = 365
+default_ticker = 'NKE'
+duration = 2000
 interval = '1d'
 
 # STREAMLIT SETTINGS
@@ -27,7 +27,7 @@ def get_info(ticker, duration, interval):
 
 
 # PLOT GRAPH
-def interactive_plot(df):
+def interactive_plot(df, strategy):
     fig = go.Figure()
 
     # Close Price
@@ -53,6 +53,17 @@ def interactive_plot(df):
         mode='lines',
         name='MA 50'
     ))
+        # STRAT
+    fig.add_trace(go.Scatter(
+        x=df.index,
+        y=strategy,
+        mode='lines',
+        name='STRATEGY',
+        line=dict(
+            color="#F5B700",
+            width=2
+        )
+    ))
 
     fig.update_layout(
         legend_title = "Indicators"
@@ -66,7 +77,8 @@ def interactive_plot(df):
 # ---------------------------------------------------------------------------- #
 
 def trade(df):
-    backtest.run_backtest(df)
+    strategy = backtest.run_backtest(df)
+    return strategy
 
 def hold(df):
     backtest_hold.run_backtest(df)
@@ -128,10 +140,12 @@ def main():
 
 
     # Graph
-    interactive_plot(df)
-
-    trade(df)
+    strategy = trade(df)
     hold(df)
+
+    interactive_plot(df, strategy)
+
+
 
 main()
 

@@ -39,20 +39,37 @@ def execute_change(change, holdings):
 
 
 def run_backtest(df):
+    strategy = []
     prices = get_close(df)
 
     days = len(df)
+    trades = 0
 
-    cash = 10000
+    cash = df['Close'].iloc[0]
+    start = cash
     holdings = 0
 
     for i in range(days - 1):
-        change = rate_of_change(df, i)
-        holdings = execute_change(change, holdings)
-        if prices[i][0] > prices[i][1] and prices[i][1] > prices[i][2]:
+        close, ma20, ma50 = prices[i]
+        in_position = (ma20 > ma50)
+
+        if in_position:
             cash, holdings = buy_stock(cash, holdings)
         else:
             cash, holdings = sell_stock(cash, holdings)
+        trades += 1
+
+        if holdings > 0:
+            change = rate_of_change(df, i)
+            holdings *= change
+        
+
+        portfolio = holdings + cash
+        strategy.append(portfolio)
         
     portfolio = holdings + cash
+    print(f'DAYS: {trades}')
+    print(f'START: {start}')
     print(f'TRADE: {portfolio}')
+    return strategy
+    
