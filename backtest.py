@@ -51,7 +51,7 @@ def run_backtest(df):
 
     for i in range(days - 1):
         close, ma20, ma50 = prices[i]
-        in_position = (ma20 > ma50)
+        in_position = (close > ma20 > ma50)
 
         if in_position:
             cash, holdings = buy_stock(cash, holdings)
