@@ -39,7 +39,7 @@ def df_maker(ticker, duration, interval):
     stop = date.today()
 
     df = get_data(ticker, begin, stop, interval)
-    df.to_csv(f"data/{ticker.lower()}_1h_1y.csv")
+    df.to_csv(f"data/{ticker.lower()}.csv")
     return df
 
 
