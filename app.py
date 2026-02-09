@@ -20,10 +20,22 @@ styles.apply_styles()
 
 dash_col, news_col = st.columns([3, 1])
 
+st.set_page_config(
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
 # BUILD DATA-FRAME
 def get_info(ticker, duration, interval):
     df = data.df_maker(ticker, duration, interval)
     return df
+
+# SIDEBAR
+stocks = ["NKE", "TSLA", "META", "PYPL", "ZM"]
+
+for stock in stocks:
+    if st.sidebar.button(stock, use_container_width=True):
+        st.session_state.ticker = stock
 
 
 # PLOT GRAPH
