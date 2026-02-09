@@ -10,7 +10,7 @@ import backtest_hold
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'NKE'
+default_ticker = 'QCOM'
 duration = 2000
 interval = '1d'
 
