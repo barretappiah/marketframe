@@ -10,7 +10,7 @@ import backtest_hold
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'QCOM'
+default_ticker = 'BTC-USD'
 duration = 2000
 interval = '1d'
 
@@ -86,14 +86,50 @@ def interactive_plot(df, strategy):
 
     dash_col.plotly_chart(fig, width='stretch')
 
-# ---------------------------------------------------------------------------- #
-
-def trade(df):
-    strategy = backtest.run_backtest(df)
-    return strategy
+# - Strategies --------------------------------------------------------------- #
 
 def hold(df):
     backtest_hold.run_backtest(df)
+
+def moving_averages(df):
+    strategy = backtest.run_backtest(df)
+    return strategy
+
+# - News --------------------------------------------------------------------- #
+
+def news_builder(current_ticker):
+    news = data.get_news(current_ticker)
+
+    count = 1
+    for article in news:
+        
+        title = article["content"]["title"]
+        publisher = article["content"]["provider"]["displayName"]
+        
+        link = data.extract_news_link(article)
+        upload_time = data.upload_date(article)
+
+        news_col.markdown(
+            f"""
+            <span id="news-top-margin"></span>
+            """, unsafe_allow_html=True
+        )
+
+        news_col.markdown(
+            f"""
+            <div class="news_article">
+                <a href="{link}" class="news_article_link">
+                    <strong class="news_title">{title}</strong>
+                </a><br>
+                <span class="news_article_publisher">{publisher} - {upload_time}</span>
+            </div>
+            """, unsafe_allow_html=True
+        )
+
+        if count < len(news):
+            news_col.markdown(f"""<hr class="news_break">""", unsafe_allow_html=True)
+        
+        count += 1
 
 # ---------------------------------------------------------------------------- #
 
@@ -113,51 +149,12 @@ def main():
     dash_col.markdown(styles.percent_badge(percent_change), unsafe_allow_html=True)
 
     # News
-    news = data.get_news(current_ticker)
-
-    # Display News
-    def news_builder():
-        count = 1
-        for article in news:
-            
-            title = article["content"]["title"]
-            publisher = article["content"]["provider"]["displayName"]
-            
-            link = data.extract_news_link(article)
-            upload_time = data.upload_date(article)
-
-            news_col.markdown(
-                f"""
-                <span id="news-top-margin"></span>
-                """, unsafe_allow_html=True
-            )
-
-            news_col.markdown(
-                f"""
-                <div class="news_article">
-                    <a href="{link}" class="news_article_link">
-                        <strong class="news_title">{title}</strong>
-                    </a><br>
-                    <span class="news_article_publisher">{publisher} - {upload_time}</span>
-                </div>
-                """, unsafe_allow_html=True
-            )
-
-            if count < len(news):
-                news_col.markdown(f"""<hr class="news_break">""", unsafe_allow_html=True)
-            
-            count += 1
-
-    news_builder()
-
+    news_builder(current_ticker)
 
     # Graph
-    strategy = trade(df)
     hold(df)
+    strat_moving_averages = moving_averages(df)
 
-    interactive_plot(df, strategy)
-
-
+    interactive_plot(df, strat_moving_averages)
 
 main()
-
