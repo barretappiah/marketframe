@@ -15,13 +15,16 @@ def calculate_rsi(df, period=14):
     return df
 
 
-def get_close_and_rsi(df):
+def get_price_data(df):
     prices = []
 
     for i in range(len(df)):
         close = float(df["Close"].iloc[i])
+        ma20 = df["MA_20"].iloc[i]
+        ma50 = df["MA_50"].iloc[i]
         rsi = df["RSI"].iloc[i]
-        prices.append([close, rsi])
+
+        prices.append([close, ma20, ma50, rsi])
 
     return prices
 
@@ -58,9 +61,11 @@ def execute_change(change, holdings):
 
 
 def run_backtest(df, rsi_buy=30, rsi_sell=70, period=14):
+    df = df.copy()
     df = calculate_rsi(df, period)
+
     strategy = []
-    prices = get_close_and_rsi(df)
+    prices = get_price_data(df)
 
     days = len(df)
     trades = 0
@@ -70,20 +75,39 @@ def run_backtest(df, rsi_buy=30, rsi_sell=70, period=14):
     holdings = 0
 
     for i in range(days - 1):
-        close, rsi = prices[i]
+        close, ma20, ma50, rsi = prices[i]
 
-        # Skip days where RSI is NaN at the beginning
-        if pd.isna(rsi):
+        # Skip days where indicators are not ready yet
+        if pd.isna(ma20) or pd.isna(ma50) or pd.isna(rsi):
             portfolio = holdings + cash
             strategy.append(portfolio)
             continue
 
-        if rsi < rsi_buy:
+        # Individual signals
+        ma_buy_signal = close > ma20 > ma50
+        ma_sell_signal = not ma_buy_signal
+
+        rsi_buy_signal = rsi < rsi_buy
+        rsi_sell_signal = rsi > rsi_sell
+
+
+        if ma_buy_signal:
+            ma_since = 0
+
+
+        # Blended logic:
+        # Buy only if any says buy
+        if ma_buy_signal or rsi_buy_signal:
+            old_cash, old_holdings = cash, holdings
             cash, holdings = buy_stock(cash, holdings)
-            trades += 1
-        elif rsi > rsi_sell:
+            if (old_cash, old_holdings) != (cash, holdings):
+                trades += 1
+
+        # Sell if no strat wants to buy/hold
+        else:
             cash, holdings = sell_stock(cash, holdings)
-            trades += 1
+            if (old_cash, old_holdings) != (cash, holdings):
+                trades += 1
 
         if holdings > 0:
             change = rate_of_change(df, i)
@@ -97,4 +121,5 @@ def run_backtest(df, rsi_buy=30, rsi_sell=70, period=14):
     print(f"START: {start}")
     print(f"END: {portfolio}")
     print(f"TRADES: {trades}")
+
     return strategy

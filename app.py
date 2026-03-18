@@ -7,11 +7,12 @@ import styles
 import backtest_hold
 import backtest_ma
 import backtest_rsi
+import backtest_blend
 
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'TSLA'
+default_ticker = 'ETH-USD'
 duration = 2000
 interval = '1d'
 
@@ -39,7 +40,7 @@ for stock in stocks:
         st.session_state.ticker = stock
 
 # PLOT GRAPH
-def interactive_plot(df, ma, rsi):
+def interactive_plot(df, ma, rsi, blend):
     fig = go.Figure()
 
     # Close Price
@@ -55,9 +56,9 @@ def interactive_plot(df, ma, rsi):
         x=df.index,
         y=ma,
         mode='lines',
-        name='STRATEGY',
+        name='MA',
         line=dict(
-            color="#F5B700",
+            color="#00F508",
             width=2
         )
     ))
@@ -67,9 +68,21 @@ def interactive_plot(df, ma, rsi):
         x=df.index,
         y=rsi,
         mode='lines',
-        name='STRATEGY',
+        name='RSI',
         line=dict(
             color="#F50000",
+            width=2
+        )
+    ))
+
+                # BLEND
+    fig.add_trace(go.Scatter(
+        x=df.index,
+        y=blend,
+        mode='lines',
+        name='BLEND',
+        line=dict(
+            color="#E5F500",
             width=2
         )
     ))
@@ -94,6 +107,10 @@ def s_moving_averages(df):
 
 def s_rsi(df):
     strategy = backtest_rsi.run_backtest(df)
+    return strategy
+
+def s_blend(df):
+    strategy = backtest_blend.run_backtest(df)
     return strategy
 
 # - News --------------------------------------------------------------------- #
@@ -156,7 +173,8 @@ def main():
     strat_hold = s_hold(df)
     strat_ma = s_moving_averages(df)
     strat_rsi = s_rsi(df)
+    strat_blend = s_blend(df)
 
-    interactive_plot(df, strat_ma, strat_rsi)
+    interactive_plot(df, strat_ma, strat_rsi, strat_blend)
 
 main()
