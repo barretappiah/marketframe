@@ -4,13 +4,14 @@ import plotly.graph_objects as go
 
 import data
 import styles
-import backtest
 import backtest_hold
+import backtest_ma
+import backtest_rsi
 
 # ---------------------------------------------------------------------------- #
 
 # BASIC SETTINGS
-default_ticker = 'BTC-USD'
+default_ticker = 'TSLA'
 duration = 2000
 interval = '1d'
 
@@ -37,9 +38,8 @@ for stock in stocks:
     if st.sidebar.button(stock, use_container_width=True):
         st.session_state.ticker = stock
 
-
 # PLOT GRAPH
-def interactive_plot(df, strategy):
+def interactive_plot(df, ma, rsi):
     fig = go.Figure()
 
     # Close Price
@@ -50,29 +50,26 @@ def interactive_plot(df, strategy):
         name='Close'
     ))
 
-    # MA 20
+        # MA
     fig.add_trace(go.Scatter(
         x=df.index,
-        y=df['MA_20'],
-        mode='lines',
-        name='MA 20'
-    ))
-
-        # MA 50
-    fig.add_trace(go.Scatter(
-        x=df.index,
-        y=df['MA_50'],
-        mode='lines',
-        name='MA 50'
-    ))
-        # STRAT
-    fig.add_trace(go.Scatter(
-        x=df.index,
-        y=strategy,
+        y=ma,
         mode='lines',
         name='STRATEGY',
         line=dict(
             color="#F5B700",
+            width=2
+        )
+    ))
+
+            # RSI
+    fig.add_trace(go.Scatter(
+        x=df.index,
+        y=rsi,
+        mode='lines',
+        name='STRATEGY',
+        line=dict(
+            color="#F50000",
             width=2
         )
     ))
@@ -88,11 +85,15 @@ def interactive_plot(df, strategy):
 
 # - Strategies --------------------------------------------------------------- #
 
-def hold(df):
+def s_hold(df):
     backtest_hold.run_backtest(df)
 
-def moving_averages(df):
-    strategy = backtest.run_backtest(df)
+def s_moving_averages(df):
+    strategy = backtest_ma.run_backtest(df)
+    return strategy
+
+def s_rsi(df):
+    strategy = backtest_rsi.run_backtest(df)
     return strategy
 
 # - News --------------------------------------------------------------------- #
@@ -152,9 +153,10 @@ def main():
     news_builder(current_ticker)
 
     # Graph
-    hold(df)
-    strat_moving_averages = moving_averages(df)
+    strat_hold = s_hold(df)
+    strat_ma = s_moving_averages(df)
+    strat_rsi = s_rsi(df)
 
-    interactive_plot(df, strat_moving_averages)
+    interactive_plot(df, strat_ma, strat_rsi)
 
 main()
